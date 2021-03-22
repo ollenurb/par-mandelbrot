@@ -16,6 +16,9 @@ void Bitmap::write_to_file(string path) {
     struct file_header h_file;
     struct info_header h_info;
 
+    uint32_t padding = 0;
+    uint8_t pad_sz = (4 - (width * (h_info.bpp / 8)) % 4) % 4;
+
     /* Fill headers infos */
     h_file.size = (H_FILE_SIZE + H_INFO_SIZE) + ((h_info.bpp / 8) * width * height);
     h_file.offset = H_FILE_SIZE + H_INFO_SIZE;
@@ -25,8 +28,11 @@ void Bitmap::write_to_file(string path) {
     if(img.is_open()) {
         img.write((const char*) &h_file, H_FILE_SIZE);
         img.write((const char*) &h_info, H_INFO_SIZE);
-        for(unsigned int i = 0; i < pixels_data.size(); i++) {
-            img.write((const char*) &pixels_data[i], 3);
+        for(uint32_t j = 0; j < height; j++) {
+            for(uint32_t i = 0; i < width; i++) {
+                img.write((const char*) &pixels_data[(height * i) + j], sizeof(pixel));
+            }
+            img.write((const char*) &padding, pad_sz);
         }
         img.close();
     }
@@ -36,7 +42,7 @@ void Bitmap::write_to_file(string path) {
 }
 
 void Bitmap::set_pixel(unsigned x, unsigned y, struct pixel* px_value) {
-    pixels_data[(width * x) + y] = *px_value;
+    pixels_data[(height * x) + y] = *px_value;
 }
 
 
