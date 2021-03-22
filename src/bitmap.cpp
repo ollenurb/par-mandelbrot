@@ -20,8 +20,7 @@ void Bitmap::write_to_file(string path) {
     uint8_t pad_sz = (4 - (width * (h_info.bpp / 8)) % 4) % 4;
 
     /* Fill headers infos */
-    h_file.size = (H_FILE_SIZE + H_INFO_SIZE) + ((h_info.bpp / 8) * width * height);
-    h_file.offset = H_FILE_SIZE + H_INFO_SIZE;
+    h_file.size += ((h_info.bpp / 8) * width * height) + height * pad_sz;
     h_info.width = width;
     h_info.height = height;
 
@@ -33,6 +32,7 @@ void Bitmap::write_to_file(string path) {
                 img.write((const char*) &pixels_data[(height * i) + j], sizeof(pixel));
             }
             img.write((const char*) &padding, pad_sz);
+
         }
         img.close();
     }

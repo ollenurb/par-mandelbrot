@@ -12,9 +12,9 @@
 #pragma pack(push, 1)
 struct file_header {
     uint16_t signature {0x4d42};
-    uint32_t size;
+    uint32_t size {H_FILE_SIZE + H_INFO_SIZE};
     uint32_t reserved {0};
-    uint32_t offset;
+    uint32_t offset {H_FILE_SIZE + H_INFO_SIZE};
 };
 #pragma pack(pop)
 
