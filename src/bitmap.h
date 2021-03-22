@@ -43,9 +43,9 @@ class Bitmap {
         Bitmap(unsigned width, unsigned height);
         void write_to_file(std::string path);
         void set_pixel(unsigned x, unsigned y, struct pixel* px_value);
+        std::vector<struct pixel> pixels_data;
 
     private:
-        std::vector<struct pixel> pixels_data;
         unsigned width, height;
 };
 
