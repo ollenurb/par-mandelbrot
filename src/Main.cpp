@@ -7,6 +7,7 @@
 #define MANDELBROT_MAX_ITER 700
 #define DEFAULT_WIDTH 1920
 #define DEFAULT_HEIGHT 1080
+#define DEFAULT_FNAME "mandelbrot.bmp"
 #define ROOT_PROC 0
 
 using namespace std;
@@ -38,12 +39,16 @@ static int compute_point(double x, double y) {
 void partition(int num, int div, int* cont, int* displ) {
     int q = num / div;
     int rem = num % div;
-    for(int i = 0; i < div; i ++) {
+
+    cont[0] = q;
+    displ[0] = 0;
+
+    for(int i = 1; i < div; i ++) {
         cont[i] = q;
         if(i == div - 1) {
             cont[i] += rem;
         }
-        displ[i] = q * i;
+        displ[i] = (q * i) + 1;
     }
 }
 
@@ -73,10 +78,9 @@ int* partial_mandelbrot(int from, int n_pixels, int width, int height) {
 int main(int argc, char** argv) {
     int width = DEFAULT_WIDTH;
     int height = DEFAULT_HEIGHT;
-    int n_pixels = width * height;
-    int size, rank, count, base;
+    int size, rank, count, base, n_pixels;
     int *sub_image, *recv_counts, *displ, *results;
-    char* filename;
+    char* filename = DEFAULT_FNAME;
 
     double t0 = MPI_Wtime();
     double t1;
@@ -94,13 +98,16 @@ int main(int argc, char** argv) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     if(rank == ROOT_PROC) {
-        cout << "A " << width << "x" << height << " mandelbrot image will be generated on file "
-             << filename << endl;
+        cout << "A " << width << "x" << height
+             << " mandelbrot image will be generated on file " << filename
+             << endl ;
+        cout << "Please wait, the process may take a while." << endl;
     }
 
     /* When width % number of processors != 0, then the last processor will get
      * slightly more elements
      */
+    n_pixels = width * height;
     count = n_pixels / size;
     base = count * rank;
     if(rank == size - 1) {
@@ -108,7 +115,7 @@ int main(int argc, char** argv) {
     }
 
     /* Compute given part of the image. Depends on process rank */
-    sub_image = partial_mandelbrot(base, count, width, height);
+    sub_image = partial_julia(base, count, width, height);
 
     if(rank == ROOT_PROC) {
         recv_counts = (int*) malloc(sizeof(int) * size);
@@ -117,6 +124,7 @@ int main(int argc, char** argv) {
         partition(n_pixels, size, recv_counts, displ);
     }
 
+    /* Collect results from other processes */
     MPI_Gatherv(
         sub_image,
         count,
@@ -140,10 +148,12 @@ int main(int argc, char** argv) {
             mandel.set_pixel(i, &px);
         }
 
-        mandel.write_to_file("test.bmp");
+        mandel.write_to_file(filename);
         t1 = MPI_Wtime();
-        cout << "Successfully wrote " << filename << endl << "Process took " << t1 - t0
-             << " seconds with " << size << " processors." << endl;
+        cout << "Successfully wrote " << filename << endl
+             << "Process took " << t1 - t0 << " seconds using "
+             << size << " process." << endl;
+
         free(recv_counts);
         free(displ);
         free(results);
