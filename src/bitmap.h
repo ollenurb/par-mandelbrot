@@ -33,9 +33,9 @@ struct info_header {
 };
 
 struct pixel {
-    uint8_t blue = 255;
+    uint8_t blue = 0;
     uint8_t green = 0;
-    uint8_t red = 255;
+    uint8_t red = 0;
 };
 
 class Bitmap {
@@ -43,6 +43,7 @@ class Bitmap {
         Bitmap(unsigned width, unsigned height);
         void write_to_file(std::string path);
         void set_pixel(unsigned x, unsigned y, struct pixel* px_value);
+        void set_pixel(unsigned pos, struct pixel* px_value);
         std::vector<struct pixel> pixels_data;
 
     private:

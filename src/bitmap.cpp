@@ -29,7 +29,7 @@ void Bitmap::write_to_file(string path) {
         img.write((const char*) &h_info, H_INFO_SIZE);
         for(uint32_t j = 0; j < height; j++) {
             for(uint32_t i = 0; i < width; i++) {
-                img.write((const char*) &pixels_data[(height * i) + j], sizeof(pixel));
+                img.write((const char*) &pixels_data[(width * j) + i], sizeof(pixel));
             }
             img.write((const char*) &padding, pad_sz);
 
@@ -42,7 +42,10 @@ void Bitmap::write_to_file(string path) {
 }
 
 void Bitmap::set_pixel(unsigned x, unsigned y, struct pixel* px_value) {
-    pixels_data[(height * x) + y] = *px_value;
+    pixels_data[(width * y) + x] = *px_value;
 }
 
+void Bitmap::set_pixel(unsigned pos, struct pixel* px_value) {
+    pixels_data[pos] = *px_value;
+}
 
