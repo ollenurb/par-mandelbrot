@@ -7,8 +7,17 @@ INCLUDE := include
 LIB     :=
 LIBRARIES   :=
 EXECUTABLE  := main
+MKDIR_P = mkdir -p
+OUT_DIR = bin include libs
 
-all: $(BIN)/$(EXECUTABLE)
+all: directories $(BIN)/$(EXECUTABLE)
+
+.PHONY: directories
+
+directories: ${OUT_DIR}
+
+${OUT_DIR}:
+		${MKDIR_P} ${OUT_DIR}
 
 runpar: clean all
 		mpirun ./$(BIN)/$(EXECUTABLE)
