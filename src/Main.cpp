@@ -24,8 +24,8 @@ void color_table(unsigned iter, pixel* px) {
 }
 
 static int compute_point(double x, double y) {
-    complex<double> z = 0;
-    complex<double> c = x + 1i*y;
+    complex<double> z(0);
+    complex<double> c(x, y);
     unsigned iter = 0;
 
     while(abs(z) < 4 && iter < MANDELBROT_MAX_ITER) {
@@ -115,7 +115,7 @@ int main(int argc, char** argv) {
     }
 
     /* Compute given part of the image. Depends on process rank */
-    sub_image = partial_julia(base, count, width, height);
+    sub_image = partial_mandelbrot(base, count, width, height);
 
     if(rank == ROOT_PROC) {
         recv_counts = (int*) malloc(sizeof(int) * size);
