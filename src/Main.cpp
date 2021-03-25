@@ -82,9 +82,6 @@ int main(int argc, char** argv) {
     int *sub_image, *recv_counts, *displ, *results;
     char* filename = DEFAULT_FNAME;
 
-    double t0 = MPI_Wtime();
-    double t1;
-
     if(argc > 1) {
         filename = argv[1];
         if(argc > 2) {
@@ -96,6 +93,9 @@ int main(int argc, char** argv) {
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    double t0 = MPI_Wtime();
+    double t1;
 
     if(rank == ROOT_PROC) {
         cout << "A " << width << "x" << height
