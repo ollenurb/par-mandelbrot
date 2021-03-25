@@ -1,6 +1,5 @@
-# MP Mandelbrot
-A didactical program that I wrote that plots the mandelbrot set by taking advantage of parallelism.  
-Requires [OpenMPI](https://www.open-mpi.org/).
+# Parallel Mandelbrot
+A didactical program that I wrote that plots the mandelbrot set by taking advantage of parallelism. Requires [OpenMPI](https://www.open-mpi.org/).
 
 ## Instructions
 1. Make sure you have the entire OpenMPI ecosystem installed, including `mpirun` and `mpic++`.
