@@ -8,16 +8,15 @@ LIB     :=
 LIBRARIES   :=
 EXECUTABLE  := main
 MKDIR_P = mkdir -p
-OUT_DIR = bin include libs
 
 all: directories $(BIN)/$(EXECUTABLE)
 
 .PHONY: directories
 
-directories: ${OUT_DIR}
+directories: $(BIN)
 
-${OUT_DIR}:
-		${MKDIR_P} ${OUT_DIR}
+$(BIN):
+		$(MKDIR_P) $(BIN)
 
 runpar: clean all
 		mpirun ./$(BIN)/$(EXECUTABLE)

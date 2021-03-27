@@ -4,7 +4,6 @@
 #include <vector>
 
 using namespace std;
-
 Bitmap::Bitmap(unsigned width, unsigned height) {
     this->width = width;
     this->height = height;
