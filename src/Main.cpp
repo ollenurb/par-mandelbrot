@@ -1,10 +1,9 @@
 #include <iostream>
 #include "bitmap.h"
-#include <complex>
 #include <mpi.h>
 #include <assert.h>
 
-#define MANDELBROT_MAX_ITER 700
+#define MANDELBROT_MAX_ITER 250
 #define DEFAULT_WIDTH 1920
 #define DEFAULT_HEIGHT 1080
 #define DEFAULT_FNAME "mandelbrot.bmp"
@@ -18,19 +17,28 @@ float scale_interval(float a, float b, float c, float d, float t)  {
 
 void color_table(unsigned iter, pixel* px) {
     unsigned val = static_cast<unsigned>(scale_interval(0, MANDELBROT_MAX_ITER, 0, 255, iter));
+
     px->red = val;
     px->green = val;
     px->blue = val;
 }
 
-static int compute_point(double x, double y) {
-    complex<double> z(0);
-    complex<double> c(x, y);
-    unsigned iter = 0;
+/**
+ * Compute a single point on the image.  Given the x and y coordinate of a
+ * given pixel, it returns the number of iterations needed to escape the orbit,
+ * using an optimized version of the time escape algorithm.  For more info:
+ * https://en.wikipedia.org/wiki/Plotting_algorithms_for_the_Mandelbrot_set
+ */
+static int compute_point(double x0, double y0) {
+    int iter = 0;
+    double x = 0, y = 0, x2 = 0, y2 = 0;
 
-    while(abs(z) < 4 && iter < MANDELBROT_MAX_ITER) {
-        z = pow(z, 2) + c;
-        iter++;
+    while(x2 + y2 <= 4 && iter <= MANDELBROT_MAX_ITER) {
+        y = 2*x*y + y0;
+        x = x2 - y2 + x0;
+        x2 = x * x;
+        y2 = y * y;
+        iter += 1;
     }
 
     return iter;
