@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <stdint.h>
+#include "types.h"
 
 #define H_FILE_SIZE 14
 #define H_INFO_SIZE 40
@@ -32,21 +33,15 @@ struct info_header {
     uint32_t imp_colors {0};
 };
 
-struct pixel {
-    uint8_t blue = 0;
-    uint8_t green = 0;
-    uint8_t red = 0;
-};
-
 class Bitmap {
     public:
         Bitmap(unsigned width, unsigned height);
         void write_to_file(std::string path);
-        void set_pixel(unsigned x, unsigned y, struct pixel* px_value);
-        void set_pixel(unsigned pos, struct pixel* px_value);
-        std::vector<struct pixel> pixels_data;
+        void set_pixel(unsigned x, unsigned y, rgb* color);
+        void set_pixel(unsigned pos, rgb* color);
 
     private:
+        std::vector<rgb> pixels_data;
         unsigned width, height;
 };
 

@@ -1,7 +1,9 @@
 #include <iostream>
-#include "bitmap.h"
+#include <string>
 #include <mpi.h>
 #include <assert.h>
+#include "palette.h"
+#include "bitmap.h"
 
 #define MANDELBROT_MAX_ITER 250
 #define DEFAULT_WIDTH 1920
@@ -15,12 +17,12 @@ float scale_interval(float a, float b, float c, float d, float t)  {
     return c + (((d - c) * (t - a)) / (b - a));
 }
 
-void color_table(unsigned iter, pixel* px) {
+void color_table(unsigned iter, rgb* color) {
     unsigned val = static_cast<unsigned>(scale_interval(0, MANDELBROT_MAX_ITER, 0, 255, iter));
 
-    px->red = val;
-    px->green = val;
-    px->blue = val;
+    color->red = val;
+    color->green = val;
+    color->blue = val;
 }
 
 /**
@@ -83,6 +85,7 @@ int* partial_mandelbrot(int from, int n_pixels, int width, int height) {
     return retval;
 }
 
+
 int main(int argc, char** argv) {
     int width = DEFAULT_WIDTH;
     int height = DEFAULT_HEIGHT;
@@ -112,9 +115,8 @@ int main(int argc, char** argv) {
         cout << "Please wait, the process may take a while." << endl;
     }
 
-    /* When width % number of processors != 0, then the last processor will get
-     * slightly more elements
-     */
+    // When width % number of processors != 0, then the last processor will get
+    // slightly more elements
     n_pixels = width * height;
     count = n_pixels / size;
     base = count * rank;
@@ -122,7 +124,7 @@ int main(int argc, char** argv) {
         count += n_pixels % size;
     }
 
-    /* Compute given part of the image. Depends on process rank */
+    // Compute given part of the image. Depends on process rank
     sub_image = partial_mandelbrot(base, count, width, height);
 
     if(rank == ROOT_PROC) {
@@ -132,7 +134,7 @@ int main(int argc, char** argv) {
         partition(n_pixels, size, recv_counts, displ);
     }
 
-    /* Collect results from other processes */
+    // Collect results from other processes
     MPI_Gatherv(
         sub_image,
         count,
@@ -149,11 +151,11 @@ int main(int argc, char** argv) {
 
     if(rank == ROOT_PROC) {
         Bitmap mandel(width, height);
-        pixel px;
-        /* Apply RGB values based on iteration values for each pixel */
+        rgb color;
+
         for(int i = 0; i < n_pixels; i++) {
-            color_table(results[i], &px);
-            mandel.set_pixel(i, &px);
+            color_table(results[i], &color);
+            mandel.set_pixel(i, &color);
         }
 
         mandel.write_to_file(filename);
@@ -169,3 +171,4 @@ int main(int argc, char** argv) {
 
     MPI_Finalize();
 }
+
