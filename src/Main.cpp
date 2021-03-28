@@ -6,6 +6,7 @@
 #include "palette.h"
 #include "bitmap.h"
 
+#define PALETTE_PATH "Maps/Wizzl011.map"
 #define MANDELBROT_MAX_ITER 700
 #define DEFAULT_WIDTH 1920
 #define DEFAULT_HEIGHT 1080
@@ -16,14 +17,6 @@ using namespace std;
 
 float scale_interval(float a, float b, float c, float d, float t)  {
     return c + (((d - c) * (t - a)) / (b - a));
-}
-
-void color_table(unsigned iter, rgb* color) {
-    unsigned val = static_cast<unsigned>(scale_interval(0, MANDELBROT_MAX_ITER, 0, 255, iter));
-
-    color->red = val;
-    color->green = val;
-    color->blue = val;
 }
 
 /**
@@ -131,7 +124,6 @@ int main(int argc, char** argv) {
         recv_counts = new int[size];
         displ = new int[size];
         results = new int[n_pixels];
-
         partition(n_pixels, size, recv_counts, displ);
     }
 
@@ -155,7 +147,7 @@ int main(int argc, char** argv) {
         Palette palette(MANDELBROT_MAX_ITER);
         rgb color;
 
-        palette.load_from_file("../Maps/Wizzl014.map");
+        palette.load_from_file(PALETTE_PATH);
 
         // Transform the image from number of iterations to actual pixel values
         for(int i = 0; i < n_pixels; i++) {
