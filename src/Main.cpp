@@ -6,7 +6,7 @@
 #include "palette.h"
 #include "bitmap.h"
 
-#define PALETTE_PATH "Maps/Wizzl011.map"
+#define PALETTE_PATH "palettes/volcano.map"
 #define MANDELBROT_MAX_ITER 700
 #define DEFAULT_WIDTH 1920
 #define DEFAULT_HEIGHT 1080
