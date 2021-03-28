@@ -1,11 +1,12 @@
 #include <iostream>
 #include <string>
 #include <mpi.h>
+#include <cmath>
 #include <assert.h>
 #include "palette.h"
 #include "bitmap.h"
 
-#define MANDELBROT_MAX_ITER 250
+#define MANDELBROT_MAX_ITER 700
 #define DEFAULT_WIDTH 1920
 #define DEFAULT_HEIGHT 1080
 #define DEFAULT_FNAME "mandelbrot.bmp"
@@ -71,7 +72,7 @@ void partition(int num, int div, int* cont, int* displ) {
  */
 int* partial_mandelbrot(int from, int n_pixels, int width, int height) {
     assert(n_pixels <= width*height);
-    int* retval = (int*) malloc(sizeof(int) * n_pixels);
+    int* retval = new int[n_pixels];
     int x, y;
     double x_0, y_0;
 
@@ -84,7 +85,6 @@ int* partial_mandelbrot(int from, int n_pixels, int width, int height) {
     }
     return retval;
 }
-
 
 int main(int argc, char** argv) {
     int width = DEFAULT_WIDTH;
@@ -111,8 +111,8 @@ int main(int argc, char** argv) {
     if(rank == ROOT_PROC) {
         cout << "A " << width << "x" << height
              << " mandelbrot image will be generated on file " << filename
-             << endl ;
-        cout << "Please wait, the process may take a while." << endl;
+             << endl
+             << "Please wait, the process may take a while." << endl;
     }
 
     // When width % number of processors != 0, then the last processor will get
@@ -128,9 +128,10 @@ int main(int argc, char** argv) {
     sub_image = partial_mandelbrot(base, count, width, height);
 
     if(rank == ROOT_PROC) {
-        recv_counts = (int*) malloc(sizeof(int) * size);
-        displ = (int*) malloc(sizeof(int) * size);
-        results = (int*) malloc(sizeof(int) * n_pixels);
+        recv_counts = new int[size];
+        displ = new int[size];
+        results = new int[n_pixels];
+
         partition(n_pixels, size, recv_counts, displ);
     }
 
@@ -147,26 +148,31 @@ int main(int argc, char** argv) {
         MPI_COMM_WORLD
     );
 
-    free(sub_image);
+    delete []sub_image;
 
     if(rank == ROOT_PROC) {
         Bitmap mandel(width, height);
+        Palette palette(MANDELBROT_MAX_ITER);
         rgb color;
 
+        palette.load_from_file("../Maps/Wizzl014.map");
+
+        // Transform the image from number of iterations to actual pixel values
         for(int i = 0; i < n_pixels; i++) {
-            color_table(results[i], &color);
+            color = palette[results[i]];
             mandel.set_pixel(i, &color);
         }
 
         mandel.write_to_file(filename);
         t1 = MPI_Wtime();
+
         cout << "Successfully wrote " << filename << endl
              << "Process took " << t1 - t0 << " seconds using "
              << size << " process." << endl;
 
-        free(recv_counts);
-        free(displ);
-        free(results);
+        delete []recv_counts;
+        delete []displ;
+        delete []results;
     }
 
     MPI_Finalize();

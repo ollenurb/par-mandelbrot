@@ -3,12 +3,12 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <iostream>
 
 using namespace std;
 
-Palette::Palette() {
+Palette::Palette(unsigned max_iters) {
     size = 0;
+    this->max_iters = max_iters;
 }
 
 void Palette::load_from_file(string path) {
@@ -25,10 +25,12 @@ void Palette::load_from_file(string path) {
     }
 }
 
+int Palette::get_size() {
+    return size;
+}
+
 rgb& Palette::operator[](unsigned index) {
-    if(index < size) {
-        return color_palette[index];
-    } else {
-        throw out_of_range("Index out of range error");
-    }
+    // Round down the interval
+    index = static_cast<unsigned>((size * index) / max_iters);
+    return color_palette[index];
 }

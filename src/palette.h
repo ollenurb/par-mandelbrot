@@ -13,11 +13,12 @@ class Palette {
     public:
         void load_from_file(std::string path);
         rgb& operator[](unsigned index);
-        Palette();
+        Palette(unsigned max_iters);
+        int get_size();
 
     private:
         std::vector<rgb> color_palette;
-        unsigned size;
+        unsigned size, max_iters;
 };
 
 #endif
