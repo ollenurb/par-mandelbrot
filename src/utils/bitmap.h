@@ -1,11 +1,9 @@
 #ifndef BITMAP_H
 #define BITMAP_H
 
-#include <string>
-#include <iostream>
-#include <vector>
-#include <stdint.h>
 #include "types.h"
+#include <string>
+#include <vector>
 
 #define H_FILE_SIZE 14
 #define H_INFO_SIZE 40

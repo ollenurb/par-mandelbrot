@@ -38,7 +38,7 @@ void Bitmap::write_to_file(string path) {
         img.close();
     }
     else {
-        cout << "There was an error while creating the file" << endl;
+        cerr << "There was an error while creating the file" << endl;
     }
 }
 

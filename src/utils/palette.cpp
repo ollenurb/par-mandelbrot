@@ -1,8 +1,5 @@
 #include "palette.h"
-#include <stdint.h>
 #include <fstream>
-#include <sstream>
-#include <string>
 
 using namespace std;
 

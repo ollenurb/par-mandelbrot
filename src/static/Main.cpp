@@ -3,11 +3,11 @@
 #include <mpi.h>
 #include <cmath>
 #include <assert.h>
-#include "palette.h"
-#include "bitmap.h"
+#include "../utils/palette.h"
+#include "../utils/bitmap.h"
 
 #define PALETTE_PATH "palettes/volcano.map"
-#define MANDELBROT_MAX_ITER 700
+#define MAX_ITER 700
 #define DEFAULT_WIDTH 1920
 #define DEFAULT_HEIGHT 1080
 #define DEFAULT_FNAME "mandelbrot.bmp"
@@ -29,7 +29,7 @@ static int compute_point(double x0, double y0) {
     int iter = 0;
     double x = 0, y = 0, x2 = 0, y2 = 0;
 
-    while(x2 + y2 <= 4 && iter <= MANDELBROT_MAX_ITER) {
+    while(x2 + y2 <= 4 && iter <= MAX_ITER) {
         y = 2*x*y + y0;
         x = x2 - y2 + x0;
         x2 = x * x;
@@ -142,14 +142,15 @@ int main(int argc, char** argv) {
 
     delete []sub_image;
 
+    /* Create the image */
     if(rank == ROOT_PROC) {
         Bitmap mandel(width, height);
-        Palette palette(MANDELBROT_MAX_ITER);
+        Palette palette(MAX_ITER);
         rgb color;
 
         palette.load_from_file(PALETTE_PATH);
 
-        // Transform the image from number of iterations to actual pixel values
+        /* Transform the image from number of iterations to actual pixel values */
         for(int i = 0; i < n_pixels; i++) {
             color = palette[results[i]];
             mandel.set_pixel(i, &color);
@@ -162,6 +163,7 @@ int main(int argc, char** argv) {
              << "Process took " << t1 - t0 << " seconds using "
              << size << " process." << endl;
 
+        /* Free memory */
         delete []recv_counts;
         delete []displ;
         delete []results;
@@ -169,4 +171,3 @@ int main(int argc, char** argv) {
 
     MPI_Finalize();
 }
-
