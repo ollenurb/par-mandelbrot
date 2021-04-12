@@ -2,7 +2,8 @@ CXX       := mpicxx
 CXX_FLAGS := -Wall -Wextra -std=c++11 -ggdb
 BIN     	:= bin
 SRC     	:= src
-SOURCES 	:= $(wildcard $(SRC)/static/*.cpp) $(wildcard $(SRC)/dynamic/*.cpp) $(wildcard $(SRC)/utils/*.cpp)
+SOURCES_STATIC 	:= $(wildcard $(SRC)/static/*.cpp) $(wildcard $(SRC)/utils/*.cpp)
+SOURCES_DYNAMIC := $(wildcard $(SRC)/ondemand/*.cpp) $(wildcard $(SRC)/utils/*.cpp)
 INCLUDE 	:= include
 LIBRARIES :=
 STATIC_EXEC	 := static
@@ -24,10 +25,10 @@ runpar: clean all
 run: clean all
 		./$(BIN)/$(STATIC_EXEC)
 
-$(BIN)/$(STATIC_EXEC): $(SOURCES)
+$(BIN)/$(STATIC_EXEC): $(SOURCES_STATIC)
 		$(CXX) $(CXX_FLAGS) -I$(INCLUDE) -g3 $^ -o $@ $(LIBRARIES)
 
-$(BIN)/$(DYNAMIC_EXEC): $(SRC)/*.cpp
+$(BIN)/$(DYNAMIC_EXEC): $(SOURCES_DYNAMIC)
 		$(CXX) $(CXX_FLAGS) -I$(INCLUDE) -g3 $^ -o $@ $(LIBRARIES)
 
 clean:
