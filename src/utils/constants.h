@@ -10,6 +10,6 @@
 #define MAX_ITER 500
 
 /* Defines the number of parts on which the image will be divided */
-#define N_BLOCKS 30
+#define N_BLOCKS 50
 
 #endif

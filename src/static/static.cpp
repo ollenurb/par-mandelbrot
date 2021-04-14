@@ -140,6 +140,9 @@ int main(int argc, char** argv) {
         MPI_COMM_WORLD
     );
 
+    /* At this point we have what we need to generate the image */
+    t1 = MPI_Wtime();
+
     delete []sub_image;
 
     /* Create the image */
@@ -157,7 +160,6 @@ int main(int argc, char** argv) {
         }
 
         mandel.write_to_file(filename);
-        t1 = MPI_Wtime();
 
         cout << "Successfully wrote " << filename << endl
              << "Process took " << t1 - t0 << " seconds using "

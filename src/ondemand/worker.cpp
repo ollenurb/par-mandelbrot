@@ -11,7 +11,7 @@ void Worker::compute_mandelbrot(int size) {
 
     for(int i = 0; i < size; i++) {
         x = (from_to[0] + i) % width;
-        y = (from_to[1] + i) / width;
+        y = (from_to[0] + i) / width;
         x_0 = scale_interval(0, width, -2.5, 1, x);
         y_0 = scale_interval(0, height, -1, 1, y);
         result[i] = compute_point(x_0, y_0);
@@ -34,14 +34,11 @@ void Worker::start()
         if(result.size() < res_sz) {
             result.resize(res_sz);
         }
-
         /* Do the actual computation */
         compute_mandelbrot(res_sz);
-
         /* Send result back to worker */
         MPI_Send(result.data(), res_sz, MPI_INT, master_rank, DATA_TAG, MPI_COMM_WORLD);
     }
-    std::cout << "Worker " << rank << " finished, terminating.." << std::endl;
 }
 
 /*
@@ -69,18 +66,10 @@ bool Worker::request_data()
     }
     if(msg_tag == ASSIGN_TAG) {
         MPI_Recv(&from_to, 2, MPI_UNSIGNED, master_rank, ASSIGN_TAG, MPI_COMM_WORLD, &msg_status);
-        std::cout << "Worker: "
-                  << rank
-                  << ", received an assignment from master: "
-                  << from_to[0] << " - " << from_to[1]
-                  << ", diff: " << from_to[1] - from_to[0]
-                  << std::endl;
         return true;
     }
     else {
-        MPI_Recv(NULL, 0, MPI_UNSIGNED, master_rank, STOP_TAG, MPI_COMM_WORLD, NULL);
+        //MPI_Recv(NULL, 0, MPI_UNSIGNED, master_rank, STOP_TAG, MPI_COMM_WORLD, NULL);
         return false;
     }
 }
-
-

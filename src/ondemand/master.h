@@ -7,6 +7,7 @@ class Master {
     public:
         Master(unsigned, unsigned);
         void start();
+        const std::vector<int>& get_results();
 
     private:
         unsigned img_dim;

@@ -1,6 +1,7 @@
 #include "master.h"
 #include <iostream>
 #include "../utils/constants.h"
+#include <stdio.h>
 #include <mpi.h>
 
 Master::Master(unsigned width, unsigned height)
@@ -17,19 +18,17 @@ Master::Master(unsigned width, unsigned height)
 void Master::start()
 {
     MPI_Status msg_status;
-    unsigned assigned = 0, received = 0;
+    unsigned assigned = 0, terminated = 0;
     int msg_src, msg_tag;
 
-    while(assigned < N_BLOCKS || received < N_BLOCKS) {
-        std::cout << "Master: Waiting for incoming messages.."
-                  << std::endl;
+    while(terminated < n_workers) {
         MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &msg_status);
         msg_src = msg_status.MPI_SOURCE;
         msg_tag = msg_status.MPI_TAG;
 
         /* Check unhandled message tags */
         if(msg_tag != REQUEST_TAG && msg_tag != DATA_TAG) {
-            std::cerr << "Master: Received an unexpected message tag: "
+            std::cerr << "Master: terminated an unexpected message tag: "
                       << msg_status.MPI_TAG
                       << ", terminating.."
                       << std::endl;
@@ -41,30 +40,35 @@ void Master::start()
          * to the displacements vector.
          */
         if(msg_tag == REQUEST_TAG) {
-            MPI_Recv(NULL, 0, MPI_CHAR, MPI_ANY_SOURCE, REQUEST_TAG, MPI_COMM_WORLD, NULL);
-            unsigned from_to[2] = {assigned*img_dim/N_BLOCKS, (assigned+1)*img_dim/N_BLOCKS};
+            /* Number of assigned blocks is still less than total blocks, assign a new one */
+            if(assigned < N_BLOCKS) {
+                MPI_Recv(NULL, 0, MPI_CHAR, MPI_ANY_SOURCE, REQUEST_TAG, MPI_COMM_WORLD, NULL);
+                unsigned from_to[2] = {assigned*img_dim/N_BLOCKS, (assigned+1)*img_dim/N_BLOCKS};
 
-            /* Send back a work assignment */
-            std::cout << "Master: Assigning task to " << msg_src << std::endl;
-
-            MPI_Send(&from_to, 2, MPI_UNSIGNED, msg_src, ASSIGN_TAG, MPI_COMM_WORLD);
-            displ[msg_src-1] = from_to[0];
-            assigned += 1;
+                /* Send back a work assignment */
+                MPI_Send(&from_to, 2, MPI_UNSIGNED, msg_src, ASSIGN_TAG, MPI_COMM_WORLD);
+                displ[msg_src-1] = assigned*img_dim/N_BLOCKS;
+                assigned += 1;
+            }
+            /* Blocks that can be assigned are finished, send a termination message */
+            else {
+                MPI_Recv(NULL, 0, MPI_CHAR, msg_src, REQUEST_TAG, MPI_COMM_WORLD, NULL);
+                MPI_Send(NULL, 0, MPI_UNSIGNED, msg_src, STOP_TAG, MPI_COMM_WORLD);
+                terminated += 1;
+            }
         }
         else { // Otherwise incoming data has to be collected with MPI_Recv
             int msg_sz;
-            int *recvbuf = (results.data() + displ[msg_src-1]);
             MPI_Get_count(&msg_status, MPI_INT, &msg_sz);
+            int *recvbuf = (results.data() + displ[msg_src-1]);
             MPI_Recv(recvbuf, msg_sz, MPI_INT, MPI_ANY_SOURCE, DATA_TAG, MPI_COMM_WORLD, NULL);
-            received += 1;
         }
     }
+}
 
-    std::cout << "Master: Sending a stop message to every worker..." << std::endl;
-    for(int i = 1; i <= n_workers; i++) {
-        MPI_Send(NULL, 0, MPI_UNSIGNED, i, STOP_TAG, MPI_COMM_WORLD);
-    }
-
+const std::vector<int>& Master::get_results()
+{
+    return results;
 }
 
 
