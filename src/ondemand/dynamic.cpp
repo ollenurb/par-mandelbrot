@@ -13,7 +13,7 @@
 int main(int argc, char** argv)
 {
     int size, rank;
-    unsigned width = 1920, height = 1080;
+    unsigned width = 2560, height = 1440;
     double t0, t1;
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -22,7 +22,7 @@ int main(int argc, char** argv)
     if(size < 2) {
         std::cerr << "On-demand parallel computations requires the number of processes to be > 1"
                   << std::endl;
-        return EINVAL;
+        exit(EINVAL);
     }
 
     /* Master and worker differentiation */

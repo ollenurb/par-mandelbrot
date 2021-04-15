@@ -15,31 +15,6 @@
 
 using namespace std;
 
-/* float scale_interval(float a, float b, float c, float d, float t)  { */
-/*     return c + (((d - c) * (t - a)) / (b - a)); */
-/* } */
-
-/**
- * Compute a single point on the image.  Given the x and y coordinate of a
- * given pixel, it returns the number of iterations needed to escape the orbit,
- * using an optimized version of the time escape algorithm.  For more info:
- * https://en.wikipedia.org/wiki/Plotting_algorithms_for_the_Mandelbrot_set
- */
-/* static int compute_point(double x0, double y0) { */
-/*     int iter = 0; */
-/*     double x = 0, y = 0, x2 = 0, y2 = 0; */
-
-/*     while(x2 + y2 <= 4 && iter <= MAX_ITER) { */
-/*         y = 2*x*y + y0; */
-/*         x = x2 - y2 + x0; */
-/*         x2 = x * x; */
-/*         y2 = y * y; */
-/*         iter += 1; */
-/*     } */
-
-/*     return iter; */
-/* } */
-
 void partition(int num, int div, int* cont, int* displ) {
     int q = num / div;
     int rem = num % div;
@@ -55,29 +30,6 @@ void partition(int num, int div, int* cont, int* displ) {
         displ[i] = (q * i) + 1;
     }
 }
-
-/* Compute the mandelbrot set on a given slice of a width*height image.
- * Results are integer values representing how much a given pixel diverges
- * from the orbit.
- * Ex: partial_mandelbrot(0, width*height, width, height) computes the entire
- * image, while partial_mandelbrot(0, 200, width, height) computes the first
- * 200 pixels of the image.
- */
-/* int* partial_mandelbrot(int from, int n_pixels, int width, int height) { */
-/*     assert(n_pixels <= width*height); */
-/*     int* retval = new int[n_pixels]; */
-/*     int x, y; */
-/*     double x_0, y_0; */
-
-/*     for(int i = 0; i < n_pixels; i++) { */
-/*         x = (from + i) % width; */
-/*         y = (from + i) / width; */
-/*         x_0 = scale_interval(0, width, -2.5, 1, x); */
-/*         y_0 = scale_interval(0, height, -1, 1, y); */
-/*         retval[i] = compute_point(x_0, y_0); */
-/*     } */
-/*     return retval; */
-/* } */
 
 int main(int argc, char** argv) {
     int width = DEFAULT_WIDTH;

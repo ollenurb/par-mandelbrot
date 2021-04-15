@@ -53,7 +53,7 @@ bool Worker::request_data()
     MPI_Status msg_status;
 
     MPI_Send(NULL, 0, MPI_CHAR, master_rank, REQUEST_TAG, MPI_COMM_WORLD);
-    MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &msg_status);
+    MPI_Probe(master_rank, MPI_ANY_TAG, MPI_COMM_WORLD, &msg_status);
     msg_tag = msg_status.MPI_TAG;
 
     if(msg_tag != ASSIGN_TAG && msg_tag != STOP_TAG) {
@@ -69,7 +69,7 @@ bool Worker::request_data()
         return true;
     }
     else {
-        //MPI_Recv(NULL, 0, MPI_UNSIGNED, master_rank, STOP_TAG, MPI_COMM_WORLD, NULL);
+        MPI_Recv(NULL, 0, MPI_UNSIGNED, master_rank, STOP_TAG, MPI_COMM_WORLD, NULL);
         return false;
     }
 }

@@ -10,9 +10,8 @@ Master::Master(unsigned width, unsigned height)
     // Size of a single block (defines the number of elements to be computed from the worker)
     this->block_sz = img_dim / N_BLOCKS;
     MPI_Comm_size(MPI_COMM_WORLD, &this->n_workers);
-    this->n_workers -= 1;
     this->displ.resize(this->n_workers);
-    this->results.resize(this->img_dim);
+    results.resize(this->img_dim);
 }
 
 void Master::start()
@@ -21,7 +20,7 @@ void Master::start()
     unsigned assigned = 0, terminated = 0;
     int msg_src, msg_tag;
 
-    while(terminated < n_workers) {
+    while(terminated < n_workers-1) {
         MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &msg_status);
         msg_src = msg_status.MPI_SOURCE;
         msg_tag = msg_status.MPI_TAG;
@@ -47,20 +46,22 @@ void Master::start()
 
                 /* Send back a work assignment */
                 MPI_Send(&from_to, 2, MPI_UNSIGNED, msg_src, ASSIGN_TAG, MPI_COMM_WORLD);
-                displ[msg_src-1] = assigned*img_dim/N_BLOCKS;
+                displ[msg_src] = from_to[0];
                 assigned += 1;
             }
             /* Blocks that can be assigned are finished, send a termination message */
             else {
                 MPI_Recv(NULL, 0, MPI_CHAR, msg_src, REQUEST_TAG, MPI_COMM_WORLD, NULL);
-                MPI_Send(NULL, 0, MPI_UNSIGNED, msg_src, STOP_TAG, MPI_COMM_WORLD);
+                MPI_Send(NULL, 0, MPI_CHAR, msg_src, STOP_TAG, MPI_COMM_WORLD);
+                /* std::cout << "Master: " << msg_src << std::endl; */
                 terminated += 1;
             }
         }
-        else { // Otherwise incoming data has to be collected with MPI_Recv
+        else {
+            /* Otherwise incoming data has to be collected with MPI_Recv */
             int msg_sz;
             MPI_Get_count(&msg_status, MPI_INT, &msg_sz);
-            int *recvbuf = (results.data() + displ[msg_src-1]);
+            int *recvbuf = (results.data() + displ[msg_src]);
             MPI_Recv(recvbuf, msg_sz, MPI_INT, MPI_ANY_SOURCE, DATA_TAG, MPI_COMM_WORLD, NULL);
         }
     }
