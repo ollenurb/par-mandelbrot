@@ -60,7 +60,7 @@ void Master::start()
             int msg_sz;
             MPI_Get_count(&msg_status, MPI_INT, &msg_sz);
             int *recvbuf = (results.data() + displ[msg_src]);
-            MPI_Recv(recvbuf, msg_sz, MPI_INT, MPI_ANY_SOURCE, DATA_TAG, MPI_COMM_WORLD, NULL);
+            MPI_Recv(recvbuf, msg_sz, MPI_INT, msg_src, DATA_TAG, MPI_COMM_WORLD, NULL);
         }
     }
 }
