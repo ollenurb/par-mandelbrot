@@ -31,6 +31,7 @@ int main(int argc, char** argv)
         t0 = MPI_Wtime();
         m.start();
         t1 = MPI_Wtime();
+
         /* Create the actual image */
         std::string filename = "dyn_mandel.bmp";
         Bitmap mandel(width, height);

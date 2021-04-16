@@ -40,8 +40,8 @@ void Master::start()
          */
         if(msg_tag == REQUEST_TAG) {
             /* Number of assigned blocks is still less than total blocks, assign a new one */
+            MPI_Recv(NULL, 0, MPI_CHAR, msg_src, REQUEST_TAG, MPI_COMM_WORLD, &msg_status);
             if(assigned < N_BLOCKS) {
-                MPI_Recv(NULL, 0, MPI_CHAR, MPI_ANY_SOURCE, REQUEST_TAG, MPI_COMM_WORLD, NULL);
                 unsigned from_to[2] = {assigned*img_dim/N_BLOCKS, (assigned+1)*img_dim/N_BLOCKS};
 
                 /* Send back a work assignment */
@@ -51,9 +51,7 @@ void Master::start()
             }
             /* Blocks that can be assigned are finished, send a termination message */
             else {
-                MPI_Recv(NULL, 0, MPI_CHAR, msg_src, REQUEST_TAG, MPI_COMM_WORLD, NULL);
                 MPI_Send(NULL, 0, MPI_CHAR, msg_src, STOP_TAG, MPI_COMM_WORLD);
-                /* std::cout << "Master: " << msg_src << std::endl; */
                 terminated += 1;
             }
         }

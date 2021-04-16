@@ -36,7 +36,7 @@ void Worker::start()
         }
         /* Do the actual computation */
         compute_mandelbrot(res_sz);
-        /* Send result back to worker */
+        /* Send result back to master */
         MPI_Send(result.data(), res_sz, MPI_INT, master_rank, DATA_TAG, MPI_COMM_WORLD);
     }
 }
